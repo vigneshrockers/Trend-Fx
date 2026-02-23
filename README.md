@@ -1,2 +1,2 @@
-# Office-Ease
-Office Management System
+# Stock Market Prediction
+
