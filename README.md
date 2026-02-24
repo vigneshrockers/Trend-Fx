@@ -1,2 +1,2 @@
-# Stock Market Prediction
+# Trend-Fx
 
