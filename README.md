@@ -1,6 +1,26 @@
-# Trend-Fx
-Trend-Fx is a Forex market prediction system designed to forecast future currency exchange price movements using historical data analysis and predictive modelling techniques. The system processes past Forex price data and financial news sentiment to identify patterns, trends, and relationships that influence market behavior.
+Trend-Fx – Forex Trading Prediction Website
 
-It includes data preprocessing, trend analysis, model building, and visualization to provide meaningful insights into the Forex market. Users can view historical trends, sentiment analysis results, and predicted price movements through an interactive interface.
+Trend-Fx is a web-based Forex trading prediction system designed to
+analyze currency market data and generate BUY and SELL signals using
+technical analysis.
 
-This project demonstrates the application of data analysis and predictive modelling in financial forecasting and helps users understand market trends to support informed decision-making.
+The system focuses on major currency pairs such as EUR/USD, GBP/USD,
+USD/JPY, AUD/USD, and USD/CAD.
+
+The website collects historical and live market data, calculates key
+technical indicators, and detects important candlestick patterns.
+
+Indicators used include Moving Averages for trend detection, RSI for
+momentum analysis, and basic Support and Resistance levels.
+
+The prediction model combines trend and momentum into a weighted score
+to determine potential market direction.
+
+If the score is positive, the system generates a BUY signal. If
+negative, it generates a SELL signal.
+
+The project is research-based and aims to study financial market
+behavior using algorithmic logic and data-driven analysis.
+
+Future improvements include live API integration, backtesting, risk
+management features, and machine learning-based prediction models.
