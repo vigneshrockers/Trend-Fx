@@ -1,11 +1,13 @@
-import ProfileCard from "./ProfileCard";
-import Clock from "./Clock";
+import React from "react";
+import ProfileCard from "./ProfileCard.jsx";
+import Clock from "./Clock.jsx";
 
-export default function RightSidebar({ user, onLogout }) {
+export default function RightSidebar({ user }) {
   return (
-    <aside className="sidebar">
-      <ProfileCard user={user} onLogout={onLogout} />
+    <div className="card" style={{ height: "fit-content" }}>
+      <ProfileCard user={user} />
+      <div style={{ height: 12 }} />
       <Clock />
-    </aside>
+    </div>
   );
 }

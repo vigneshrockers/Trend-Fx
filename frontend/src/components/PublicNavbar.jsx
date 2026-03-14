@@ -4,30 +4,29 @@ export default function PublicNavbar() {
   return (
     <header className="navWrap">
       <div className="navInner">
-        <Link to="/login" className="logo">
+        
+        {/* Logo */}
+        <Link to="/" className="logo">
           <span className="logoMark">TF</span>
           <span className="logoText">Trend-Fx</span>
         </Link>
 
+        {/* Navigation Menu */}
         <nav className="navLinks">
           <a href="#home">Home</a>
+          <a href="#about">About</a>
+          <a href="#converter">Currency Converter</a>
+          <a href="#contact">Contact Us</a>
 
           <div className="navDrop">
-            <span className="navDropLabel">Register/Log In ▾</span>
+            <span className="navDropLabel">Register / Login ▾</span>
             <div className="navDropMenu">
               <Link to="/register">Register</Link>
               <Link to="/login">Login</Link>
             </div>
           </div>
-
-          <a href="#about">About</a>
-          <a href="#converter">Currency Converter</a>
-          <a href="#contact">Contact Us</a>
         </nav>
 
-        <div className="navRight">
-          <span className="navIcon" title="Search">🔍</span>
-        </div>
       </div>
     </header>
   );

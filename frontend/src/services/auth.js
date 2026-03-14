@@ -6,10 +6,6 @@ export function getToken() {
 export function setToken(token) {
   localStorage.setItem(TOKEN_KEY, token);
 }
-export function clearToken() {
-  localStorage.removeItem(TOKEN_KEY);
-}
-
 export function logout() {
-  clearToken();
+  localStorage.removeItem(TOKEN_KEY);
 }
