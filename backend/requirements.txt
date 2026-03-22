@@ -6,4 +6,9 @@ python-dotenv
 passlib[bcrypt]
 python-jose[cryptography]
 pydantic[email]
+<<<<<<< HEAD
 email-validator
+=======
+email-validator
+python-dotenv
+>>>>>>> c89c4f0 (Added Live Price Traking using API)
