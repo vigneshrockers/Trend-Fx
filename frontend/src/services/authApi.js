@@ -1,21 +1,23 @@
 import { apiFetch } from "./api";
 import { setToken } from "./auth";
 
-export async function registerUser({ full_name, email, password }) {
-  const data = await apiFetch("/api/auth/register", {
+export async function register(payload) {
+  return apiFetch("/api/auth/register", {
     method: "POST",
-    body: { full_name, email, password },
+    body: payload,
   });
-  if (data?.access_token) setToken(data.access_token);
-  return data;
 }
 
-export async function loginUser({ email, password }) {
+export async function login(payload) {
   const data = await apiFetch("/api/auth/login", {
     method: "POST",
-    body: { email, password },
+    body: payload,
   });
-  if (data?.access_token) setToken(data.access_token);
+
+  if (data?.access_token) {
+    setToken(data.access_token);
+  }
+
   return data;
 }
 
@@ -23,16 +25,16 @@ export async function me() {
   return apiFetch("/api/users/me", { auth: true });
 }
 
-export async function forgotPassword(email) {
+export async function forgotPassword(payload) {
   return apiFetch("/api/auth/forgot-password", {
     method: "POST",
-    body: { email },
+    body: payload,
   });
 }
 
-export async function resetPassword(token, new_password) {
+export async function resetPassword(payload) {
   return apiFetch("/api/auth/reset-password", {
     method: "POST",
-    body: { token, new_password },
+    body: payload,
   });
 }
