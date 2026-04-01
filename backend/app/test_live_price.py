@@ -28,7 +28,7 @@ def test_invalid_pair():
 
 def test_missing_pair():
     response = client.get("/live-price")
-    assert response.status_code == 422   # FastAPI validation error
+    assert response.status_code == 422   
 
 
 
