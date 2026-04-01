@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 function mockCandles(limit = 120) {
   const now = Date.now();
   let price = 1.08;
@@ -28,4 +29,15 @@ export async function getLive(pair = "EURUSD") {
     price: (1 + Math.random()).toFixed(5),
     updated_at: new Date().toISOString(),
   };
+=======
+import { apiFetch } from "./api";
+
+export async function getLive(pair = "EURUSD") {
+  return apiFetch(`/api/market/live?pair=${encodeURIComponent(pair)}`);
+}
+
+export async function getCandles(pair = "EURUSD", limit = 120) {
+  const data = await apiFetch(`/api/market/candles?pair=${encodeURIComponent(pair)}&limit=${limit}`);
+  return data?.candles || data || [];
+>>>>>>> c89c4f0 (Added Live Price Traking using API)
 }

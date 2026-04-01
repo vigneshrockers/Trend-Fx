@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 export default function ProfileCard({ user, onLogout }) {
   return (
     <div className="card">
@@ -14,6 +15,20 @@ export default function ProfileCard({ user, onLogout }) {
       <button className="btn btnGhost" onClick={onLogout} style={{ marginTop: 12 }}>
         Logout
       </button>
+=======
+import React from "react";
+
+export default function ProfileCard({ user }) {
+  return (
+    <div>
+      <div className="section-title">My Profile</div>
+      <div className="list-item">
+        <div style={{ fontWeight: 900, fontSize: 16 }}>
+          {user?.full_name || user?.name || "Loading..."}
+        </div>
+        <div className="small">{user?.email || "-"}</div>
+      </div>
+>>>>>>> c89c4f0 (Added Live Price Traking using API)
     </div>
   );
 }
