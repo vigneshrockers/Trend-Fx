@@ -1,4 +1,10 @@
+ 
 import { useEffect, useMemo, useState } from "react";
+  
+import { logout } from "../services/auth";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+   
 import {
   ResponsiveContainer,
   LineChart,
@@ -16,6 +22,7 @@ const API_KEY = import.meta.env.VITE_TWELVE_DATA_API_KEY;
 
 export default function Dashboard() {
   const [pair, setPair] = useState("USD/JPY");
+ 
   const [latestPrice, setLatestPrice] = useState("");
   const [chartData, setChartData] = useState([]);
   const [loadingPrice, setLoadingPrice] = useState(true);
@@ -139,6 +146,101 @@ export default function Dashboard() {
   };
 
   const sessions = getForexSessions();
+  
+  const [chartData, setChartData] = useState([]);
+  const [latestPrice, setLatestPrice] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetchMarketData();
+  }, [pair]);
+
+  async function fetchMarketData() {
+    try {
+      setLoading(true);
+      setError("");
+
+      if (!API_KEY) {
+        throw new Error("Missing Twelve Data API key");
+      }
+
+      const url =
+        `https://api.twelvedata.com/time_series` +
+        `?symbol=${encodeURIComponent(pair)}` +
+        `&interval=5min` +
+        `&outputsize=120` +
+        `&apikey=${API_KEY}`;
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      console.log("Twelve Data response:", data);
+
+      if (!response.ok || data.status === "error" || !data.values?.length) {
+        throw new Error(data.message || "Unable to load market data");
+      }
+
+      const valuesDesc = data.values.map((item) => ({
+        datetime: item.datetime,
+        close: Number(item.close),
+      }));
+
+      const latest = valuesDesc[0]?.close;
+      setLatestPrice(latest ? formatPrice(pair, latest) : "");
+
+      const valuesAsc = [...valuesDesc].reverse();
+      const closes = valuesAsc.map((item) => item.close);
+
+      const rsiValues = calculateRSI(closes, 14);
+      const macdValues = calculateMACD(closes, 12, 26, 9);
+
+      const merged = valuesAsc.map((item, index) => ({
+        time: formatTime(item.datetime),
+        close: item.close,
+        rsi: rsiValues[index],
+        macd: macdValues[index]?.macd ?? null,
+        signal: macdValues[index]?.signal ?? null,
+      }));
+
+      setChartData(merged);
+    } catch (err) {
+      console.error("Dashboard error:", err);
+      setError(err.message || "Unable to load live market data.");
+      setChartData([]);
+      setLatestPrice("");
+    } finally {
+      setLoading(false);
+    }
+  }
+   
+
+  function getForexSessions() {
+    const now = new Date();
+    const utcHour = now.getUTCHours() + now.getUTCMinutes() / 60;
+
+    const sessions = [
+      { name: "Sydney", start: 21, end: 6 },
+      { name: "Tokyo", start: 0, end: 9 },
+      { name: "London", start: 8, end: 17 },
+      { name: "New York", start: 13, end: 22 },
+    ];
+
+    return sessions.map((session) => {
+      let isOpen = false;
+
+      if (session.start > session.end) {
+        isOpen = utcHour >= session.start || utcHour < session.end;
+      } else {
+        isOpen = utcHour >= session.start && utcHour < session.end;
+      }
+
+      return { ...session, isOpen };
+    });
+  }
+
+  const sessions = getForexSessions();
+  const latestPoint = chartData.length ? chartData[chartData.length - 1] : null;
 
   return (
     <div className="dashboard-page">
@@ -163,47 +265,74 @@ export default function Dashboard() {
           <h2>Live Market Graph</h2>
 
           <p className="price-text">
+ 
             Latest Price: {loadingPrice ? "Loading..." : latestPrice || "Not available"}
           </p>
 
           {priceError && <p className="error-text">{priceError}</p>}
 
           {latestIndicatorData && (
+  
+            Latest Price: {loading ? "Loading..." : latestPrice || "Not available"}
+          </p>
+
+          {latestPoint && !loading && !error && (
+   
             <div className="indicator-summary">
               <div className="indicator-box">
                 <span>RSI (14)</span>
                 <strong>
+ 
                   {latestIndicatorData.rsi !== null && latestIndicatorData.rsi !== undefined
                     ? latestIndicatorData.rsi.toFixed(2)
                     : "N/A"}
+  
+                  {latestPoint.rsi != null ? latestPoint.rsi.toFixed(2) : "N/A"}
+   
                 </strong>
               </div>
 
               <div className="indicator-box">
                 <span>MACD</span>
                 <strong>
+ 
                   {latestIndicatorData.macd !== null && latestIndicatorData.macd !== undefined
                     ? latestIndicatorData.macd.toFixed(5)
                     : "N/A"}
+  
+                  {latestPoint.macd != null ? latestPoint.macd.toFixed(5) : "N/A"}
+   
                 </strong>
               </div>
 
               <div className="indicator-box">
                 <span>Signal</span>
                 <strong>
+ 
                   {latestIndicatorData.signal !== null && latestIndicatorData.signal !== undefined
                     ? latestIndicatorData.signal.toFixed(5)
                     : "N/A"}
+  
+                  {latestPoint.signal != null ? latestPoint.signal.toFixed(5) : "N/A"}
+   
                 </strong>
               </div>
             </div>
           )}
 
+ 
           {loadingChart ? (
             <p>Loading chart...</p>
           ) : chartError ? (
             <p className="error-text">{chartError}</p>
           ) : (
+  
+          {error && <p className="error-text">{error}</p>}
+
+          {loading ? (
+            <p>Loading chart...</p>
+          ) : error ? null : (
+   
             <>
               <div className="chart-block">
                 <h3>Price Chart</h3>
@@ -230,7 +359,11 @@ export default function Dashboard() {
 
               <div className="chart-block">
                 <h3>RSI Indicator</h3>
+ 
                 <div style={{ width: "100%", height: 260 }}>
+  
+                <div style={{ width: "100%", height: 250 }}>
+   
                   <ResponsiveContainer>
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#22356f" />
@@ -247,7 +380,10 @@ export default function Dashboard() {
                         strokeWidth={2.5}
                         dot={false}
                         name="RSI (14)"
+ 
                         connectNulls={false}
+  
+   
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -256,7 +392,11 @@ export default function Dashboard() {
 
               <div className="chart-block">
                 <h3>MACD Indicator</h3>
+ 
                 <div style={{ width: "100%", height: 260 }}>
+  
+                <div style={{ width: "100%", height: 250 }}>
+   
                   <ResponsiveContainer>
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#22356f" />
@@ -272,7 +412,10 @@ export default function Dashboard() {
                         strokeWidth={2.5}
                         dot={false}
                         name="MACD"
+ 
                         connectNulls={false}
+  
+   
                       />
                       <Line
                         type="monotone"
@@ -281,7 +424,10 @@ export default function Dashboard() {
                         strokeWidth={2.5}
                         dot={false}
                         name="Signal"
+ 
                         connectNulls={false}
+  
+   
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -307,6 +453,7 @@ export default function Dashboard() {
   );
 }
 
+ 
 function calculateEMA(values, period) {
   const multiplier = 2 / (period + 1);
   const ema = new Array(values.length).fill(null);
@@ -332,27 +479,73 @@ function calculateRSI(values, period = 14) {
 
   if (values.length <= period) return rsi;
 
+  
+function formatTime(datetimeString) {
+  const date = new Date(datetimeString);
+  return date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatPrice(pair, value) {
+  if (pair.includes("JPY")) return Number(value).toFixed(3);
+  return Number(value).toFixed(5);
+}
+
+function calculateEMA(values, period) {
+  const ema = new Array(values.length).fill(null);
+  if (values.length < period) return ema;
+
+  const multiplier = 2 / (period + 1);
+  let sum = 0;
+
+  for (let i = 0; i < period; i++) sum += values[i];
+  ema[period - 1] = sum / period;
+
+  for (let i = period; i < values.length; i++) {
+    ema[i] = (values[i] - ema[i - 1]) * multiplier + ema[i - 1];
+  }
+
+  return ema;
+}
+
+function calculateRSI(values, period = 14) {
+  const rsi = new Array(values.length).fill(null);
+  if (values.length <= period) return rsi;
+
+   
   let gains = 0;
   let losses = 0;
 
   for (let i = 1; i <= period; i++) {
     const change = values[i] - values[i - 1];
+ 
     if (change >= 0) {
       gains += change;
     } else {
       losses += Math.abs(change);
     }
+  
+    if (change >= 0) gains += change;
+    else losses += Math.abs(change);
+   
   }
 
   let avgGain = gains / period;
   let avgLoss = losses / period;
 
+ 
   if (avgLoss === 0) {
     rsi[period] = 100;
   } else {
     const rs = avgGain / avgLoss;
     rsi[period] = 100 - 100 / (1 + rs);
   }
+  
+  rsi[period] =
+    avgLoss === 0 ? 100 : 100 - 100 / (1 + avgGain / avgLoss);
+   
 
   for (let i = period + 1; i < values.length; i++) {
     const change = values[i] - values[i - 1];
@@ -362,12 +555,17 @@ function calculateRSI(values, period = 14) {
     avgGain = (avgGain * (period - 1) + gain) / period;
     avgLoss = (avgLoss * (period - 1) + loss) / period;
 
+ 
     if (avgLoss === 0) {
       rsi[i] = 100;
     } else {
       const rs = avgGain / avgLoss;
       rsi[i] = 100 - 100 / (1 + rs);
     }
+  
+    rsi[i] =
+      avgLoss === 0 ? 100 : 100 - 100 / (1 + avgGain / avgLoss);
+   
   }
 
   return rsi;
@@ -377,6 +575,7 @@ function calculateMACD(values, shortPeriod = 12, longPeriod = 26, signalPeriod =
   const shortEMA = calculateEMA(values, shortPeriod);
   const longEMA = calculateEMA(values, longPeriod);
 
+ 
   const macdLine = values.map((_, index) => {
     if (shortEMA[index] === null || longEMA[index] === null) return null;
     return shortEMA[index] - longEMA[index];
@@ -405,5 +604,28 @@ function calculateMACD(values, shortPeriod = 12, longPeriod = 26, signalPeriod =
       histogram:
         macd !== null && signal !== null ? macd - signal : null,
     };
+  
+  const macdLine = values.map((_, i) => {
+    if (shortEMA[i] == null || longEMA[i] == null) return null;
+    return shortEMA[i] - longEMA[i];
+   
   });
+
+  const validMacd = macdLine.filter((v) => v != null);
+  const signalOnly = calculateEMA(validMacd, signalPeriod);
+
+  const signalLine = new Array(values.length).fill(null);
+  let idx = 0;
+
+  for (let i = 0; i < macdLine.length; i++) {
+    if (macdLine[i] != null) {
+      signalLine[i] = signalOnly[idx];
+      idx++;
+    }
+  }
+
+  return values.map((_, i) => ({
+    macd: macdLine[i],
+    signal: signalLine[i],
+  }));
 }

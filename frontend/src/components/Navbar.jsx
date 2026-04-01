@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
+import { getToken } from "../services/auth";
 import "../styles/navbar.css";
 
 export default function Navbar() {
+  const isLoggedIn = !!getToken();
+
   return (
     <nav className="tf-navbar">
       <div className="tf-navbar-inner">
@@ -14,7 +17,12 @@ export default function Navbar() {
           <Link to="/about">About</Link>
           <Link to="/converter">Currency Converter</Link>
           <Link to="/contact">Contact Us</Link>
-          <Link to="/login">Register / Login</Link>
+
+          {/* Show dashboard only after login */}
+          {isLoggedIn && <Link to="/dashboard">Dashboard</Link>}
+
+          {/* Show login only if not logged in */}
+          {!isLoggedIn && <Link to="/login">Register / Login</Link>}
         </div>
       </div>
     </nav>

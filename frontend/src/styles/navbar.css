@@ -66,4 +66,55 @@
     justify-content: center;
     gap: 14px;
   }
+  .tf-logout-btn {
+  background: transparent;
+  border: 1px solid #3d63dd;
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.tf-logout-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.account-dropdown {
+  position: relative;
+}
+
+
+
+.account-btn:hover {
+  background: #3d63dd;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: #14214d;
+  border: 1px solid #2a3f8f;
+  border-radius: 8px;
+  padding: 8px;
+  display: none;
+}
+
+.account-dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.dropdown-menu button {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px 12px;
+  width: 100%;
+  text-align: left;
+}
+
+.dropdown-menu button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
 }

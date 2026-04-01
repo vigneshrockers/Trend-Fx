@@ -1,92 +1,103 @@
 import { useState } from "react";
-import "../styles/pages.css";
+import "../styles/converter.css";
+
+const API_KEY = import.meta.env.VITE_TWELVE_DATA_API_KEY;
 
 export default function Converter() {
-  const [amount, setAmount] = useState("1");
-  const [fromCurrency, setFromCurrency] = useState("USD");
-  const [toCurrency, setToCurrency] = useState("INR");
+  const [from, setFrom] = useState("USD");
+  const [to, setTo] = useState("EUR");
+  const [amount, setAmount] = useState(1);
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleConvert = async () => {
+  async function convertCurrency() {
     try {
+      setLoading(true);
       setError("");
       setResult("");
 
+      if (!API_KEY) {
+        throw new Error("Missing API key");
+      }
+
       const response = await fetch(
-        `https://api.frankfurter.app/latest?amount=${amount}&from=${fromCurrency}&to=${toCurrency}`
+        `https://api.twelvedata.com/exchange_rate?symbol=${from}/${to}&apikey=${API_KEY}`
       );
 
-      if (!response.ok) {
-        throw new Error("Failed conversion");
-      }
-
       const data = await response.json();
+      console.log("Converter response:", data);
 
-      if (data.rates && data.rates[toCurrency] !== undefined) {
-        setResult(`${amount} ${fromCurrency} = ${data.rates[toCurrency]} ${toCurrency}`);
-      } else {
-        setError("Conversion failed.");
+      if (!response.ok || data.status === "error" || !data.rate) {
+        throw new Error(data.message || "Conversion failed");
       }
+
+      const convertedAmount = Number(amount) * Number(data.rate);
+      setResult(convertedAmount.toFixed(4));
     } catch (err) {
-      setError("Unable to fetch conversion right now.");
+      console.error("Converter error:", err);
+      setError(err.message || "Conversion failed");
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
   return (
-    <div className="simple-page">
-      <div className="simple-card">
-        <h1>Currency Converter</h1>
+    <div className="converter-page">
+      <h1>Currency Converter</h1>
 
-        <div className="form-group">
+      <div className="converter-box">
+        <div className="converter-row">
           <label>Amount</label>
           <input
             type="number"
+            min="0"
+            step="0.01"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="Enter amount"
           />
         </div>
 
-        <div className="two-column">
-          <div className="form-group">
+        <div className="converter-row">
+          <div className="converter-field">
             <label>From</label>
-            <select
-              value={fromCurrency}
-              onChange={(e) => setFromCurrency(e.target.value)}
-            >
+            <select value={from} onChange={(e) => setFrom(e.target.value)}>
               <option value="USD">USD</option>
-              <option value="INR">INR</option>
               <option value="EUR">EUR</option>
-              <option value="GBP">GBP</option>
+              <option value="INR">INR</option>
               <option value="JPY">JPY</option>
-              <option value="CAD">CAD</option>
+              <option value="GBP">GBP</option>
               <option value="AUD">AUD</option>
+              <option value="CAD">CAD</option>
             </select>
           </div>
 
-          <div className="form-group">
+          <div className="converter-arrow">→</div>
+
+          <div className="converter-field">
             <label>To</label>
-            <select
-              value={toCurrency}
-              onChange={(e) => setToCurrency(e.target.value)}
-            >
+            <select value={to} onChange={(e) => setTo(e.target.value)}>
+              <option value="EUR">EUR</option>
               <option value="USD">USD</option>
               <option value="INR">INR</option>
-              <option value="EUR">EUR</option>
-              <option value="GBP">GBP</option>
               <option value="JPY">JPY</option>
-              <option value="CAD">CAD</option>
+              <option value="GBP">GBP</option>
               <option value="AUD">AUD</option>
+              <option value="CAD">CAD</option>
             </select>
           </div>
         </div>
 
-        <button className="page-btn" onClick={handleConvert}>
-          Convert
+        <button onClick={convertCurrency} disabled={loading}>
+          {loading ? "Converting..." : "Convert"}
         </button>
 
-        {result && <p className="result-text">{result}</p>}
+        {result && (
+          <p className="converter-result">
+            Result: {amount} {from} = {result} {to}
+          </p>
+        )}
+
         {error && <p className="error-text">{error}</p>}
       </div>
     </div>
