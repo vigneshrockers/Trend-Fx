@@ -14,14 +14,10 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 app.add_middleware(
     CORSMiddleware,
-<<<<<<< HEAD
-    allow_origins=[FRONTEND_URL],
-=======
     allow_origins=[
-        "http://localhost:5173",
+        FRONTEND_URL,
         "http://127.0.0.1:5173",
     ],
->>>>>>> c89c4f0 (Added Live Price Traking using API)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -31,7 +27,6 @@ app.add_middleware(
 def health():
     return {"status": "ok"}
 
-# Simple table creation for demo
 Base.metadata.create_all(bind=engine)
 
 app.include_router(auth_router)

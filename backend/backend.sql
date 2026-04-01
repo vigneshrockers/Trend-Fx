@@ -1,5 +1,5 @@
 
-USE trendfx;  -- selects your database
+USE trendfx;  
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
