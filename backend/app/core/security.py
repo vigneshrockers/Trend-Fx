@@ -12,7 +12,8 @@ JWT_SECRET = os.getenv("JWT_SECRET", "change_me")
 JWT_ALGO = os.getenv("JWT_ALGO", "HS256")
 EXPIRE_MIN = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
-def hash_password(password: str) -> str:
+def hash_password(password: str):
+    password = password[:72]  # fix bcrypt limit
     return pwd_context.hash(password)
 
 def verify_password(password: str, password_hash: str) -> bool:

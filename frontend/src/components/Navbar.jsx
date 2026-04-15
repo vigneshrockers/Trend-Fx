@@ -1,26 +1,30 @@
-import React from "react";
 import { Link } from "react-router-dom";
+import { getToken } from "../services/auth";
+import "../styles/navbar.css";
 
 export default function Navbar() {
+  const isLoggedIn = !!getToken();
+
   return (
-    <div className="nav-inner">
-      <div className="brand">
-        <div className="badge">TF</div>
-        <div>Trend-Fx</div>
-      </div>
+    <nav className="tf-navbar">
+      <div className="tf-navbar-inner">
+        <Link to="/" className="tf-brand">
+          <div className="tf-logo-box">TF</div>
+          <span className="tf-brand-text">Trend-Fx</span>
+        </Link>
 
-      {/* Order: Home, About, Currency Converter, Contact Us, Register/Login */}
-      <div className="navlinks">
-        <Link to="/">Home</Link>
-        <a href="#about">About</a>
-        <a href="#converter">Currency Converter</a>
-        <a href="#contact">Contact Us</a>
-        <Link to="/register">Register</Link>
-        <Link to="/login">Login</Link>
-      </div>
+        <div className="tf-nav-links">
+          <Link to="/about">About</Link>
+          <Link to="/converter">Currency Converter</Link>
+          <Link to="/contact">Contact Us</Link>
 
-      {/* Search removed */}
-      <div style={{ width: 0 }} />
-    </div>
+          {/* Show dashboard only after login */}
+          {isLoggedIn && <Link to="/dashboard">Dashboard</Link>}
+
+          {/* Show login only if not logged in */}
+          {!isLoggedIn && <Link to="/login">Register / Login</Link>}
+        </div>
+      </div>
+    </nav>
   );
 }
