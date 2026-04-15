@@ -83,7 +83,14 @@
   position: relative;
 }
 
-
+.account-btn {
+  background: #5e8bff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
 
 .account-btn:hover {
   background: #3d63dd;
