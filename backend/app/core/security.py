@@ -6,13 +6,17 @@ from passlib.context import CryptContext
 
 load_dotenv()
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 JWT_SECRET = os.getenv("JWT_SECRET", "change_me")
 JWT_ALGO = os.getenv("JWT_ALGO", "HS256")
 EXPIRE_MIN = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
+<<<<<<< Updated upstream
 def hash_password(password: str) -> str:
+=======
+def hash_password(password: str):
+>>>>>>> Stashed changes
     return pwd_context.hash(password)
 
 def verify_password(password: str, password_hash: str) -> bool:

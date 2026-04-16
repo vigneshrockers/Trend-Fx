@@ -56,18 +56,36 @@ export default function Register() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+<<<<<<< Updated upstream
+=======
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [err, setErr] = useState("");
+>>>>>>> Stashed changes
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
   async function onSubmit(e) {
     e.preventDefault();
     setErr("");
+
+    if (password !== confirmPassword) {
+      setErr("Passwords do not match");
+      return;
+    }
+
     setLoading(true);
     try {
+<<<<<<< Updated upstream
       await registerUser({ full_name: fullName, email, password });
       nav("/dashboard");
     } catch (e2) {
       setErr(e2.message || "Register failed");
+=======
+      await register({ full_name, email, password });
+      nav("/dashboard");
+    } catch (error) {
+      setErr(error.message || "Registration failed");
+>>>>>>> Stashed changes
     } finally {
       setLoading(false);
     }
@@ -143,6 +161,37 @@ export default function Register() {
               </div>
             </form>
           </div>
+<<<<<<< Updated upstream
+=======
+
+          <div className="field">
+            <label>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="field">
+            <label>Confirm Password</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button type="submit" style={{ width: "100%" }}>
+            {loading ? "Creating..." : "Register"}
+          </button>
+        </form>
+
+        <div className="auth-foot">
+          Already have an account? <Link to="/login">Login</Link>
+>>>>>>> Stashed changes
         </div>
       </div>
     </div>
