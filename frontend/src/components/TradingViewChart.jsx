@@ -8,16 +8,28 @@ export default function TradingViewChart({ pair = "EUR/USD" }) {
 
     containerRef.current.innerHTML = "";
 
-    const scriptId = "tradingview-widget-script";
+    const symbolMap = {
+      "EUR/USD": "FX:EURUSD",
+      "USD/JPY": "FX:USDJPY",
+      "GBP/USD": "FX:GBPUSD",
+      "AUD/USD": "FX:AUDUSD",
+      "USD/INR": "FX_IDC:USDINR",
+    };
 
-    function createWidget() {
+    const tvSymbol = symbolMap[pair] || "FX:EURUSD";
+
+    if (!containerRef.current.id) {
+      containerRef.current.id = `tradingview_${Date.now()}`;
+    }
+
+    const loadWidget = () => {
       if (!window.TradingView || !containerRef.current) return;
 
       containerRef.current.innerHTML = "";
 
       new window.TradingView.widget({
         autosize: true,
-        symbol: "FX:" + pair.replace("/", ""),
+        symbol: tvSymbol,
         interval: "D",
         timezone: "Etc/UTC",
         theme: "light",
@@ -33,28 +45,23 @@ export default function TradingViewChart({ pair = "EUR/USD" }) {
         studies: ["RSI@tv-basicstudies", "MACD@tv-basicstudies"],
         container_id: containerRef.current.id,
       });
-    }
-
-    if (!containerRef.current.id) {
-      containerRef.current.id = `tradingview_${pair.replace("/", "")}_${Date.now()}`;
-    }
+    };
 
     if (window.TradingView) {
-      createWidget();
-      return;
-    }
-
-    let script = document.getElementById(scriptId);
-
-    if (!script) {
-      script = document.createElement("script");
-      script.id = scriptId;
-      script.src = "https://s3.tradingview.com/tv.js";
-      script.async = true;
-      script.onload = createWidget;
-      document.body.appendChild(script);
+      loadWidget();
     } else {
-      script.onload = createWidget;
+      const existingScript = document.getElementById("tradingview-widget-script");
+
+      if (existingScript) {
+        existingScript.addEventListener("load", loadWidget);
+      } else {
+        const script = document.createElement("script");
+        script.id = "tradingview-widget-script";
+        script.src = "https://s3.tradingview.com/tv.js";
+        script.async = true;
+        script.onload = loadWidget;
+        document.body.appendChild(script);
+      }
     }
 
     return () => {
@@ -68,7 +75,7 @@ export default function TradingViewChart({ pair = "EUR/USD" }) {
     <div
       style={{
         width: "100%",
-        height: "650px",
+        height: "700px",
         background: "#ffffff",
         borderRadius: "12px",
         overflow: "hidden",

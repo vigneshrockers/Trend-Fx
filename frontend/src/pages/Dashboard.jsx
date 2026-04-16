@@ -86,19 +86,21 @@ export default function Dashboard() {
     <div
       style={{
         minHeight: "100vh",
+        width: "100%",
         background: "#081a4b",
         color: "white",
-        padding: "20px",
+        padding: "20px 40px",
+        boxSizing: "border-box",
       }}
     >
       <div
         style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
+          width: "100%",
           background: "#0b1f5e",
           borderRadius: "16px",
           padding: "24px",
           boxShadow: "0 8px 20px rgba(0,0,0,0.25)",
+          boxSizing: "border-box",
         }}
       >
         <div
@@ -127,10 +129,15 @@ export default function Dashboard() {
           </button>
         </div>
 
-        <div style={{ marginBottom: "20px" }}>
+        <div style={{ marginBottom: "20px", width: "100%" }}>
           <label
             htmlFor="pair-select"
-            style={{ fontWeight: "bold", marginRight: "10px" }}
+            style={{
+              fontWeight: "bold",
+              marginRight: "10px",
+              display: "block",
+              marginBottom: "8px",
+            }}
           >
             Currency Pair:
           </label>
@@ -146,7 +153,8 @@ export default function Dashboard() {
               background: "#081a4b",
               color: "#fff",
               fontWeight: "bold",
-              minWidth: "220px",
+              width: "100%",
+              boxSizing: "border-box",
             }}
           >
             {currencyPairs.map((pair) => (
@@ -163,6 +171,7 @@ export default function Dashboard() {
             gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
             gap: "16px",
             marginBottom: "24px",
+            width: "100%",
           }}
         >
           <div style={cardStyle}>
@@ -209,6 +218,8 @@ const cardStyle = {
   background: "#13286d",
   borderRadius: "14px",
   padding: "20px",
+  width: "100%",
+  boxSizing: "border-box",
 };
 
 const labelStyle = {
@@ -225,4 +236,6 @@ const chartBoxStyle = {
   borderRadius: "14px",
   padding: "16px",
   marginBottom: "24px",
+  width: "100%",
+  boxSizing: "border-box",
 };
