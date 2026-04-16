@@ -1,60 +1,23 @@
-<<<<<<< HEAD
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import HeroLayout from "../components/HeroLayout";
-
-export default function ForgotPassword() {
-  const [email, setEmail] = useState("demo@trendfx.com");
-  const [msg, setMsg] = useState("");
-
-  function onSubmit(e) {
-    e.preventDefault();
-    // demo reset link
-    setMsg(`Reset link (demo): http://localhost:5173/reset-password?token=demo123`);
-  }
-
-  return (
-    <HeroLayout title="FOREX MARKET PREDICTION" subtitle="RESET YOUR PASSWORD (DEMO)">
-      <div className="authCard heroAuthCard">
-        <h2>Forgot Password</h2>
-        <p className="muted">We will generate a reset link (demo mode).</p>
-
-        {msg ? <div className="alert ok">{msg}</div> : null}
-
-        <form onSubmit={onSubmit} className="form">
-          <label>Email</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required />
-          <button className="btn">Request reset link</button>
-        </form>
-
-        <div className="authLinks">
-          <Link to="/login">Back to login</Link>
-        </div>
-      </div>
-    </HeroLayout>
-=======
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Navbar from "../components/Navbar.jsx";
-import heroImg from "../assets/forex-hero.jpg";
 import { forgotPassword } from "../services/authApi";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function onSubmit(e) {
     e.preventDefault();
-    setErr("");
     setMsg("");
+    setErr("");
     setLoading(true);
     try {
-      const res = await forgotPassword(email);
-      setMsg(res.reset_link ? `Reset Link (demo): ${res.reset_link}` : (res.message || "Reset link generated."));
-    } catch (e2) {
-      setErr(e2.message || "Failed to request reset");
+      const res = await forgotPassword({ email });
+      setMsg(res?.message || "Reset link request submitted.");
+    } catch (error) {
+      setErr(error.message || "Request failed");
     } finally {
       setLoading(false);
     }
@@ -102,9 +65,10 @@ export default function ForgotPassword() {
                 />
               </div>
 
-              <button disabled={loading}>
-                {loading ? "Requesting..." : "Get Reset Link"}
-              </button>
+          <button type="submit" style={{ width: "100%" }}>
+            {loading ? "Sending..." : "Send Reset Link"}
+          </button>
+        </form>
 
               {err ? <div className="alert">{err}</div> : null}
               {msg ? <div className="alert" style={{ color: "#86efac" }}>{msg}</div> : null}
@@ -125,6 +89,5 @@ export default function ForgotPassword() {
         </div>
       </div>
     </div>
->>>>>>> c89c4f0 (Added Live Price Traking using API)
   );
 }

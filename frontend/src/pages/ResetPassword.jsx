@@ -1,58 +1,9 @@
-<<<<<<< HEAD
-import { useState } from "react";
-import { Link, useSearchParams, useNavigate } from "react-router-dom";
-import HeroLayout from "../components/HeroLayout";
-
-export default function ResetPassword() {
-  const nav = useNavigate();
-  const [params] = useSearchParams();
-  const tokenFromUrl = params.get("token") || "";
-  const [token, setToken] = useState(tokenFromUrl);
-  const [newPassword, setNewPassword] = useState("");
-  const [msg, setMsg] = useState("");
-
-  function onSubmit(e) {
-    e.preventDefault();
-    // demo reset
-    setMsg("Password updated (demo). You can login now.");
-    setTimeout(() => nav("/login"), 800);
-  }
-
-  return (
-    <HeroLayout title="FOREX MARKET PREDICTION" subtitle="SET A NEW PASSWORD">
-      <div className="authCard heroAuthCard">
-        <h2>Reset Password</h2>
-
-        {msg ? <div className="alert ok">{msg}</div> : null}
-
-        <form onSubmit={onSubmit} className="form">
-          <label>Token</label>
-          <input value={token} onChange={(e) => setToken(e.target.value)} required />
-
-          <label>New Password</label>
-          <input
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            type="password"
-            required
-          />
-
-          <button className="btn">Reset</button>
-        </form>
-
-        <div className="authLinks">
-          <Link to="/login">Back to login</Link>
-        </div>
-      </div>
-    </HeroLayout>
-=======
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar.jsx";
-import heroImg from "../assets/forex-hero.jpg";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { resetPassword } from "../services/authApi";
 
 export default function ResetPassword() {
+  const [search] = useSearchParams();
   const nav = useNavigate();
 <<<<<<< Updated upstream
   const [token, setToken] = useState("");
@@ -66,9 +17,11 @@ export default function ResetPassword() {
 >>>>>>> Stashed changes
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function onSubmit(e) {
     e.preventDefault();
+    setMsg("");
     setErr("");
 <<<<<<< Updated upstream
     setMsg("");
@@ -82,11 +35,11 @@ export default function ResetPassword() {
 >>>>>>> Stashed changes
     setLoading(true);
     try {
-      const res = await resetPassword(token, newPassword);
-      setMsg(res.message || "Password updated. You can login now.");
-      setTimeout(() => nav("/login"), 800);
-    } catch (e2) {
-      setErr(e2.message || "Reset failed");
+      const res = await resetPassword({ token, new_password: password });
+      setMsg(res?.message || "Password reset successful.");
+      setTimeout(() => nav("/login"), 1200);
+    } catch (error) {
+      setErr(error.message || "Reset failed");
     } finally {
       setLoading(false);
     }
@@ -133,28 +86,21 @@ export default function ResetPassword() {
             <h2>Reset</h2>
             <p>Use the token and set a new password.</p>
 
-            <form onSubmit={onSubmit}>
-              <div className="field">
-                <label>Token</label>
-                <input
-                  value={token}
-                  onChange={(e) => setToken(e.target.value)}
-                  placeholder="paste token here"
-                  required
-                />
-              </div>
+        <form onSubmit={onSubmit}>
+          <div className="field">
+            <label>Reset Token</label>
+            <input value={token} readOnly />
+          </div>
 
-              <div className="field">
-                <label>New Password (min 6)</label>
-                <input
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="new password"
-                  type="password"
-                  minLength={6}
-                  required
-                />
-              </div>
+          <div className="field">
+            <label>New Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
 
               <button disabled={loading}>
                 {loading ? "Updating..." : "Update Password"}
@@ -196,6 +142,5 @@ export default function ResetPassword() {
         </div>
       </div>
     </div>
->>>>>>> c89c4f0 (Added Live Price Traking using API)
   );
 }

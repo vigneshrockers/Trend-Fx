@@ -14,7 +14,6 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-<<<<<<< Updated upstream
 <<<<<<< HEAD
     allow_origins=[FRONTEND_URL],
 =======

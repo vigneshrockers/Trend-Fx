@@ -17,8 +17,6 @@ import Contact from "./pages/Contact";
 >>>>>>> Stashed changes
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 <<<<<<< Updated upstream
 import { getToken } from "./services/auth";
@@ -121,38 +119,25 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <>
+      {!hideNavbar && <Navbar />}
       <Routes>
-<<<<<<< HEAD
-        <Route path="/" element={<Navigate to="/login" replace />} />
-
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-=======
         <Route path="/" element={<Home />} />
-
+        <Route path="/about" element={<About />} />
+        <Route path="/converter" element={<Converter />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
->>>>>>> c89c4f0 (Added Live Price Traking using API)
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-
-<<<<<<< HEAD
-        <Route path="*" element={<Navigate to="/login" replace />} />
-=======
-        <Route path="*" element={<Navigate to="/" replace />} />
->>>>>>> c89c4f0 (Added Live Price Traking using API)
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
-    </BrowserRouter>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <HashRouter>
+      <Layout />
+    </HashRouter>
   );
 }

@@ -6,40 +6,32 @@ import TopTabs from "../components/TopTabs";
 import RightSidebar from "../components/RightSidebar";
 import MarketChart from "../components/MarketChart";
 import { logout } from "../services/auth";
-import { getCandles, getLive } from "../services/market";
-=======
-import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import TopTabs from "../components/TopTabs.jsx";
-import RightSidebar from "../components/RightSidebar.jsx";
-import MarketChart from "../components/MarketChart.jsx";
-import { me } from "../services/authApi";
-import { logout } from "../services/auth";
-import { getLive, getCandles } from "../services/market";
->>>>>>> c89c4f0 (Added Live Price Traking using API)
-import { getLatestNews } from "../services/news";
+import { useEffect, useState } from "react";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ReferenceLine,
+} from "recharts";
+import "../styles/dashboard.css";
 
-const PAIRS = ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD"];
+const API_KEY = import.meta.env.VITE_TWELVE_DATA_API_KEY;
 
 export default function Dashboard() {
-  const nav = useNavigate();
-<<<<<<< HEAD
-  const [tab, setTab] = useState("Market");
-  const [pair, setPair] = useState("EURUSD");
-
-  const [candles, setCandles] = useState([]);
-  const [live, setLive] = useState(null);
-  const [news, setNews] = useState([]);
-
-  const user = { name: "Demo User", email: "demo@trendfx.com" };
+  const [pair, setPair] = useState("USD/JPY");
+  const [chartData, setChartData] = useState([]);
+  const [latestPrice, setLatestPrice] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    (async () => {
-      const c = await getCandles(pair);
-      const l = await getLive(pair);
-      setCandles(c);
-      setLive(l);
-    })();
+    fetchMarketData();
   }, [pair]);
 
   useEffect(() => {
@@ -480,173 +472,140 @@ export default function Dashboard() {
                     <div className="muted">Live price + chart (demo)</div>
                   </div>
 
-                  <select className="select" value={pair} onChange={(e) => setPair(e.target.value)}>
-                    {PAIRS.map((p) => (
-                      <option key={p} value={p}>
-                        {p}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+      <div className="dashboard-grid">
+        <div className="dashboard-card">
+          <h2>Live Market Graph</h2>
 
-                <div className="pricePanel">
-                  <div>
-                    <div className="muted">Current Price</div>
-                    <div className="price">{live?.price || "—"}</div>
-                  </div>
-                  <div className="muted">
-                    Updated: {live?.updated_at ? new Date(live.updated_at).toLocaleString() : "—"}
-                  </div>
-                </div>
+          <p className="price-text">
+            Latest Price: {loading ? "Loading..." : latestPrice || "Not available"}
+          </p>
+
+          {latestPoint && !loading && !error && (
+            <div className="indicator-summary">
+              <div className="indicator-box">
+                <span>RSI (14)</span>
+                <strong>
+                  {latestPoint.rsi != null ? latestPoint.rsi.toFixed(2) : "N/A"}
+                </strong>
+              </div>
+
+              <div className="indicator-box">
+                <span>MACD</span>
+                <strong>
+                  {latestPoint.macd != null ? latestPoint.macd.toFixed(5) : "N/A"}
+                </strong>
+              </div>
+
+              <div className="indicator-box">
+                <span>Signal</span>
+                <strong>
+                  {latestPoint.signal != null ? latestPoint.signal.toFixed(5) : "N/A"}
+                </strong>
               </div>
             </div>
+          )}
 
-            <MarketChart candles={candles} />
-          </>
-        )}
+          {error && <p className="error-text">{error}</p>}
 
-        {tab === "News" && (
-          <div className="card" style={{ marginTop: 12 }}>
-            <div className="cardTitle">Latest News</div>
-            <div className="muted">Top forex headlines (demo)</div>
+          {loading ? (
+            <p>Loading chart...</p>
+          ) : error ? null : (
+            <>
+              <div className="chart-block">
+                <h3>Price Chart</h3>
+                <div style={{ width: "100%", height: 300 }}>
+                  <ResponsiveContainer>
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#22356f" />
+                      <XAxis dataKey="time" stroke="#d8e3ff" />
+                      <YAxis stroke="#d8e3ff" domain={["auto", "auto"]} />
+                      <Tooltip />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="close"
+                        stroke="#5e8bff"
+                        strokeWidth={3}
+                        dot={false}
+                        name="Close Price"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
 
-            <ul className="newsList">
-              {news.map((n) => (
-                <li key={n.id} className="newsItem">
-                  <div className="newsHeadline">{n.headline}</div>
-                  <div className="muted">
-                    {new Date(n.timestamp).toLocaleString()} • {n.source}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+              <div className="chart-block">
+                <h3>RSI Indicator</h3>
+                <div style={{ width: "100%", height: 250 }}>
+                  <ResponsiveContainer>
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#22356f" />
+                      <XAxis dataKey="time" stroke="#d8e3ff" />
+                      <YAxis stroke="#d8e3ff" domain={[0, 100]} />
+                      <Tooltip />
+                      <Legend />
+                      <ReferenceLine y={70} stroke="#ff6b6b" strokeDasharray="5 5" />
+                      <ReferenceLine y={30} stroke="#51cf66" strokeDasharray="5 5" />
+                      <Line
+                        type="monotone"
+                        dataKey="rsi"
+                        stroke="#f59f00"
+                        strokeWidth={2.5}
+                        dot={false}
+                        name="RSI (14)"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
 
-        {tab === "Market Timings" && <MarketTimings />}
-      </div>
-
-      <RightSidebar user={user} onLogout={handleLogout} />
-=======
-    <div className="dashboard">
-      <div className="container">
-        <div className="topbar">
-          <div>
-            <div style={{ fontWeight: 900, fontSize: 18 }}>Trend-Fx Dashboard</div>
-            <div className="small">Live market + news + timings</div>
-          </div>
-          <div style={{ width: 160 }}>
-            <button onClick={onLogout}>Logout</button>
-          </div>
+              <div className="chart-block">
+                <h3>MACD Indicator</h3>
+                <div style={{ width: "100%", height: 250 }}>
+                  <ResponsiveContainer>
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#22356f" />
+                      <XAxis dataKey="time" stroke="#d8e3ff" />
+                      <YAxis stroke="#d8e3ff" domain={["auto", "auto"]} />
+                      <Tooltip />
+                      <Legend />
+                      <ReferenceLine y={0} stroke="#cdd6f4" strokeDasharray="4 4" />
+                      <Line
+                        type="monotone"
+                        dataKey="macd"
+                        stroke="#00c2ff"
+                        strokeWidth={2.5}
+                        dot={false}
+                        name="MACD"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="signal"
+                        stroke="#ff4d6d"
+                        strokeWidth={2.5}
+                        dot={false}
+                        name="Signal"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
-        <div className="dash-grid">
-          <div className="card">
-            <TopTabs active={activeTab} onChange={setActiveTab} />
-
-            <div style={{ marginTop: 14 }}>
-              {err ? <div className="alert">{err}</div> : null}
-
-              {activeTab === "Market" && (
-                <>
-                  <div className="flex" style={{ justifyContent: "space-between" }}>
-                    <div className="flex">
-                      <div className="field" style={{ minWidth: 220, marginBottom: 0 }}>
-                        <label>Pair</label>
-                        <select value={pair} onChange={(e) => setPair(e.target.value)}>
-                          {PAIRS.map((p) => (
-                            <option key={p} value={p}>{p}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="pricebox">
-                        <div>
-                          <div className="small">Current Price</div>
-                          <div className="price">
-                            {loadingLive ? "Loading..." : (live?.price ?? "-")}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="small">Updated</div>
-                          <div style={{ fontWeight: 800 }}>
-                            {loadingLive ? "..." : formatTime(live?.updated_at)}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ marginTop: 14 }}>
-                    <div className="section-title">Market Chart (Close)</div>
-                    <div className="card" style={{ padding: 12 }}>
-                      {loadingChart ? (
-                        <div className="small">Loading chart...</div>
-                      ) : (
-                        <MarketChart candles={candles} />
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {activeTab === "News" && (
-                <div style={{ marginTop: 12 }}>
-                  <div className="section-title">Latest News</div>
-                  {loadingNews ? (
-                    <div className="small">Loading news...</div>
-                  ) : (
-                    <div className="list">
-                      {news.length === 0 ? (
-                        <div className="small">No news found.</div>
-                      ) : (
-                        news.map((n, idx) => (
-                          <div key={idx} className="list-item">
-                            <div style={{ fontWeight: 900 }}>{n.title || n.headline || "News"}</div>
-                            <div className="small">{formatTime(n.published_at || n.timestamp)}</div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTab === "Market Timings" && (
-                <div style={{ marginTop: 12 }}>
-                  <div className="section-title">Market Sessions (Simple)</div>
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th>Session</th>
-                        <th>UTC Hours</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {timings.map((s) => (
-                        <tr key={s.name}>
-                          <td style={{ fontWeight: 900 }}>{s.name}</td>
-                          <td>{s.open}:00 - {s.close}:00</td>
-                          <td className={s.isOpen ? "open" : "closed"}>
-                            {s.isOpen ? "Now Open" : "Closed"}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div className="small" style={{ marginTop: 8 }}>
-                    *Simple UTC-based check for demo.
-                  </div>
-                </div>
-              )}
-            </div>
+        <div className="dashboard-card">
+          <h2>Market Timings</h2>
+          <div className="timings-list">
+            {sessions.map((session) => (
+              <div key={session.name} className="timing-item">
+                <span>{session.name}</span>
+                <strong>{session.isOpen ? "Open" : "Closed"}</strong>
+              </div>
+            ))}
           </div>
-
-          <RightSidebar user={user} />
         </div>
       </div>
->>>>>>> c89c4f0 (Added Live Price Traking using API)
     </div>
   );
 }

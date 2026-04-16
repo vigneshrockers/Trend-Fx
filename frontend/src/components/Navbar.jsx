@@ -1,7 +1,10 @@
-import React from "react";
 import { Link } from "react-router-dom";
+import { getToken } from "../services/auth";
+import "../styles/navbar.css";
 
 export default function Navbar() {
+  const isLoggedIn = !!getToken();
+
   return (
 <<<<<<< Updated upstream
     <div className="nav-inner">
@@ -42,9 +45,6 @@ export default function Navbar() {
         <Link to="/register">Register</Link>
         <Link to="/login">Login</Link>
       </div>
-
-      {/* Search removed */}
-      <div style={{ width: 0 }} />
-    </div>
+    </nav>
   );
 }

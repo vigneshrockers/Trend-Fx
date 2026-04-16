@@ -1,6 +1,6 @@
 import { getToken, logout } from "./auth";
 
-const API_BASE = ""; // IMPORTANT: use vite proxy
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
 function toErrorMessage(detail, fallback) {
   if (!detail) return fallback;
@@ -23,6 +23,7 @@ function toErrorMessage(detail, fallback) {
 
 export async function apiFetch(path, { method = "GET", body, auth = false } = {}) {
   const headers = { "Content-Type": "application/json" };
+
   if (auth) {
     const token = getToken();
     if (token) headers.Authorization = `Bearer ${token}`;
@@ -38,11 +39,17 @@ export async function apiFetch(path, { method = "GET", body, auth = false } = {}
 
   const text = await res.text();
   let data = null;
-  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = text;
+  }
 
   if (!res.ok) {
     const msg = toErrorMessage(data?.detail ?? data, `Request failed (${res.status})`);
     throw new Error(msg);
   }
+
   return data;
 }
