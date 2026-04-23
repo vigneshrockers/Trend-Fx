@@ -15,7 +15,6 @@ from app.schemas.auth import (
     TokenResponse
 )
 from app.core.security import hash_password, verify_password, create_access_token
-from app.services.email_service import send_reset_code_email
 
 load_dotenv()
 
@@ -50,36 +49,22 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
 
 @router.post("/forgot-password")
 def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    # Demo: return reset link instead of sending email
     user = db.query(User).filter(User.email == payload.email).first()
 
+    # Always return success to avoid email enumeration
     if not user:
-        return {"message": "If the email exists, a reset code will be sent."}
+        return {"message": "If the email exists, a reset link will be generated."}
 
-    db.query(PasswordResetToken).filter(
-        PasswordResetToken.user_id == user.id,
-        PasswordResetToken.is_used == False,
-    ).delete(synchronize_session=False)
-
-    token = f"{secrets.randbelow(900000) + 100000}"
+    token = secrets.token_urlsafe(32)
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=30)
 
     rt = PasswordResetToken(user_id=user.id, token=token, expires_at=expires_at, is_used=False)
+    db.add(rt)
+    db.commit()
 
-    try:
-        db.add(rt)
-        send_reset_code_email(user.email, token, user.full_name)
-        db.commit()
-    except Exception as exc:
-        db.rollback()
-        raise HTTPException(
-            status_code=500,
-            detail=str(exc) if str(exc) else "Unable to send reset email right now",
-        )
-
-    return {
-        "message": "If the email exists, a reset code has been sent.",
-        "email_hint": user.email,
-    }
+    reset_link = f"{FRONTEND_URL}/reset-password?token={token}"
+    return {"message": "Reset link generated (demo).", "reset_link": reset_link}
 
 @router.post("/reset-password")
 def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_db)):

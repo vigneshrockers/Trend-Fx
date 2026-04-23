@@ -1,24 +1,12 @@
 import { apiFetch } from "./api";
 import { setToken } from "./auth";
 
-<<<<<<< Updated upstream
 export async function registerUser({ full_name, email, password }) {
-=======
-export async function register(payload) {
->>>>>>> Stashed changes
   const data = await apiFetch("/api/auth/register", {
     method: "POST",
     body: { full_name, email, password },
   });
-<<<<<<< Updated upstream
   if (data?.access_token) setToken(data.access_token);
-=======
-
-  if (data?.access_token) {
-    setToken(data.access_token);
-  }
-
->>>>>>> Stashed changes
   return data;
 }
 
