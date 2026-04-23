@@ -26,9 +26,16 @@ export default function ForgotPassword() {
   }
 
   return (
+<<<<<<< Updated upstream
     <div className="hero">
       <div className="hero-bg" style={{ backgroundImage: `url(${heroImg})` }} />
       <div className="hero-overlay" />
+=======
+    <div className="auth-wrap">
+      <div className="card auth-card">
+        <div className="auth-title">Forgot Password</div>
+        <div className="auth-sub">Enter your email to receive a 6-digit reset passcode.</div>
+>>>>>>> Stashed changes
 
       <div className="navbar">
         <div className="container">
@@ -47,6 +54,7 @@ export default function ForgotPassword() {
             <h2>Request Reset Link</h2>
             <p>We’ll generate a reset link valid for a short time.</p>
 
+<<<<<<< Updated upstream
             <form onSubmit={onSubmit}>
               <div className="field">
                 <label>Email</label>
@@ -72,6 +80,13 @@ export default function ForgotPassword() {
               </div>
             </form>
           </div>
+=======
+        <div className="auth-foot">
+          <Link to="/reset-password">Already have a passcode?</Link>
+          <br />
+          <br />
+          <Link to="/login">Back to Login</Link>
+>>>>>>> Stashed changes
         </div>
       </div>
     </div>
